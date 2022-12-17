@@ -170,8 +170,21 @@ impl Net {
 }
 
 fn resolve_collision(a: &mut Rect, vel: &mut Vec2, b: &mut Rect) -> bool{
-    if let Some(_intersection) = a.intersect(*b){
-        vel.x *= -1f32;
+    if let Some(intersection) = a.intersect(*b){
+        let a_center = a.center();
+        let b_center = b.center();
+        let to = b_center - a_center;
+        let to_signum = to.signum();
+        match intersection.w > intersection.h {
+            true =>{
+                a.y -= to_signum.y * intersection.h;
+                vel.y  = -to_signum.y * vel.y.abs();
+            }
+            false =>{
+                a.x -= to_signum.x * intersection.w;
+                vel.x  = -to_signum.x * vel.x.abs();
+            }
+        }
         return true
     }
     return false
@@ -191,6 +204,7 @@ fn reset_ball(ball: &mut Ball){
 // macro to add async functionality
 #[macroquad::main("pong")]
 async fn main() {
+    let mut score = 0;
     let mut player = Player::new();
     let mut rival = Rival::new();
     let mut ball = Ball::new();
@@ -202,10 +216,17 @@ async fn main() {
         player.update(get_frame_time());
         ball.update(get_frame_time());
         resolve_collision(&mut ball.rect, &mut ball.vel, &mut player.rect);
-        resolve_collision(&mut ball.rect, &mut ball.vel, &mut rival.rect);
+        let add_score = resolve_collision(
+            &mut ball.rect, 
+            &mut ball.vel, 
+            &mut rival.rect
+        );
+        if add_score {
+            score +=1
+        }
         if ball.rect.x <= -55f32 || ball.rect.x >=screen_width() + 30f32 {
-
             reset_ball(&mut ball);
+            score = 0;
         }
         
         // clear_background take macroquad::Color struct
@@ -214,6 +235,12 @@ async fn main() {
         net.draw();
         rival.draw();
         ball.draw();
+        draw_text_ex(
+            &format!("successful bounces {}", score),
+            screen_width() * 0.1f32,
+            40f32,
+            TextParams{color: WHITE, font_size:30u16, ..Default::default()}
+        );
         next_frame().await
     }
 }

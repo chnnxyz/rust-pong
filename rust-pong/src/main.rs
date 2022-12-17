@@ -65,9 +65,9 @@ impl Rival {
         Self{
             rect: Rect::new(
                 screen_width() - PLAYER_SIZE.x -20f32,
-                screen_height() * 0.5f32 - PLAYER_SIZE.y *0.5f32,
+                0f32,
                 PLAYER_SIZE.x,
-                PLAYER_SIZE.y,
+                screen_height(),
             )
         }
     }
@@ -181,6 +181,10 @@ fn reset_ball(ball: &mut Ball){
     ball.rect.x = screen_width() * 0.5f32 - BALL_SIZE * 0.5f32;
     ball.rect.y = screen_height() * 0.5f32 - BALL_SIZE * 0.5f32;
     ball.vel.x = rand::gen_range(-1f32,1f32);
+    if ball.vel.x <= 0.33f32 {
+        // guarantees we dont get shitty x velocities
+        ball.vel.x = (ball.vel.x.signum()) *0.33f32;
+    }
     ball.vel.y = rand::gen_range(-1f32,1f32);
 }
 

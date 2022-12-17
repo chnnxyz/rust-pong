@@ -4,6 +4,10 @@ version = "0.1.0"
 authors = ["chnnxyz <s@chnn.xyz>"]
 edition = "2018"
 
+[workspace]
+resolver = "2"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+macroquad = "0.3.22"
+rand = "0.7.3"
